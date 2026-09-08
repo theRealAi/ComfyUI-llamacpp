@@ -4,9 +4,9 @@ description = "Custom ComfyUI nodes for llama-server, with the same Connectivity
 version = "1.0.0"
 
 [project.urls]
-Repository = "https://github.com/ggml-org/llama.cpp"
+Repository = "https://github.com/theRealAi/ComfyUI-llamacpp"
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "Julien Brami - theRealAi"
 DisplayName = "ComfyUI-llamacpp"
 Icon = ""
