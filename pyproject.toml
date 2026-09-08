@@ -1,0 +1,12 @@
+[project]
+name = "comfyui-llamacpp"
+description = "Custom ComfyUI nodes for llama-server, with the same Connectivity / Options / Generate / Chat graph as comfyui-ollama."
+version = "1.0.0"
+
+[project.urls]
+Repository = "https://github.com/ggml-org/llama.cpp"
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI-llamacpp"
+Icon = ""

@@ -1,0 +1,124 @@
+{
+  "id": "llamacpp-structured-output",
+  "revision": 0,
+  "last_node_id": 56,
+  "last_link_id": 58,
+  "nodes": [
+    {
+      "id": 17,
+      "type": "LlamaCppConnectivity",
+      "pos": [1400, -470],
+      "size": [270, 180],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [{ "name": "connection", "type": "LLAMACPP_CONNECTIVITY", "links": [18] }],
+      "properties": { "Node name for S&R": "LlamaCppConnectivity" },
+      "widgets_values": ["http://127.0.0.1:8080", "", 0, "minutes", "", null]
+    },
+    {
+      "id": 5,
+      "type": "ShowText|pysssss",
+      "pos": [1920, -280],
+      "size": [370, 290],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [{ "name": "text", "type": "STRING", "link": 24 }],
+      "outputs": [{ "name": "STRING", "shape": 6, "type": "STRING", "links": [] }],
+      "properties": { "Node name for S&R": "ShowText|pysssss" },
+      "widgets_values": [""]
+    },
+    {
+      "id": 45,
+      "type": "StringContains",
+      "pos": [1920, -490],
+      "size": [210, 166],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        { "name": "string", "type": "STRING", "widget": { "name": "string" }, "link": 48 },
+        { "name": "substring", "type": "STRING", "widget": { "name": "substring" }, "link": null },
+        { "name": "case_sensitive", "type": "BOOLEAN", "widget": { "name": "case_sensitive" }, "link": null }
+      ],
+      "outputs": [{ "name": "contains", "type": "BOOLEAN", "links": [] }],
+      "properties": { "Node name for S&R": "StringContains" },
+      "widgets_values": ["", "\"cat\"", false]
+    },
+    {
+      "id": 27,
+      "type": "LlamaCppGenerate",
+      "pos": [1690, -470],
+      "size": [210, 490],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        { "name": "connectivity", "shape": 7, "type": "LLAMACPP_CONNECTIVITY", "link": 18 },
+        { "name": "options", "shape": 7, "type": "LLAMACPP_OPTIONS", "link": null },
+        { "name": "images", "shape": 7, "type": "IMAGE", "link": 58 },
+        { "name": "context", "shape": 7, "type": "LLAMACPP_CONTEXT", "link": null },
+        { "name": "meta", "shape": 7, "type": "LLAMACPP_META", "link": null }
+      ],
+      "outputs": [
+        { "name": "result", "type": "STRING", "links": [24, 48] },
+        { "name": "thinking", "type": "STRING", "links": null },
+        { "name": "context", "type": "LLAMACPP_CONTEXT", "links": [] },
+        { "name": "meta", "type": "LLAMACPP_META", "links": [] }
+      ],
+      "properties": { "Node name for S&R": "LlamaCppGenerate" },
+      "widgets_values": [
+        "Reply in JSON format, containing a dictionary of objects and their counts found in the image. The user prompt defines the category of objects to look for.\nFor example, if the user prompts \"animals\" then the reply should be something like { \"cat\": 2, \"dog\": 1 }",
+        "animals",
+        false,
+        false,
+        "json"
+      ]
+    },
+    {
+      "id": 54,
+      "type": "Note",
+      "pos": [1540, -660],
+      "size": [250, 130],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Structured output (format: json) via llama-server json_schema. Vision requires llama-server --mmproj. The JSON is checked for a cat count."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 56,
+      "type": "LoadImage",
+      "pos": [1400, -280],
+      "size": [274, 314],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        { "name": "IMAGE", "type": "IMAGE", "links": [58] },
+        { "name": "MASK", "type": "MASK", "links": null }
+      ],
+      "properties": { "Node name for S&R": "LoadImage" },
+      "widgets_values": ["example.png", "image"]
+    }
+  ],
+  "links": [
+    [18, 17, 0, 27, 0, "LLAMACPP_CONNECTIVITY"],
+    [24, 27, 0, 5, 0, "STRING"],
+    [48, 27, 0, 45, 0, "STRING"],
+    [58, 56, 0, 27, 2, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

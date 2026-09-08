@@ -1,0 +1,10 @@
+venv
+.idea
+saved_context/*
+!saved_context/.keep
+saved_history/*
+!saved_history/.keep
+__pycache__
+.env
+.vscode
+*.pyc
