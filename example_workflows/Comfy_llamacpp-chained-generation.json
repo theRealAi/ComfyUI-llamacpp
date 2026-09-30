@@ -15,7 +15,7 @@
       "inputs": [],
       "outputs": [{ "name": "connection", "type": "LLAMACPP_CONNECTIVITY", "links": [18] }],
       "properties": { "Node name for S&R": "LlamaCppConnectivity" },
-      "widgets_values": ["http://127.0.0.1:8080", "", 5, "minutes", "", null]
+      "widgets_values": ["http://127.0.0.1:8080", "", "", null]
     },
     {
       "id": 27,

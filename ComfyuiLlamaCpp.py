@@ -21,7 +21,6 @@ from PIL.PngImagePlugin import PngInfo
 from server import PromptServer
 
 THINK_RE = re.compile(r"<think>(.*?)</think>", re.DOTALL | re.IGNORECASE)
-SKIP_OPTION_KEYS = {"num_ctx", "tfs_z"}
 DEFAULT_MEDIA_MARKER = "<__media__>"
 
 
@@ -140,8 +139,6 @@ def _filter_enabled_options(options: dict[str, Any] | None, for_chat: bool = Fal
         if not key.startswith("enable_") or not enabled:
             continue
         name = key[len("enable_"):]
-        if name in SKIP_OPTION_KEYS:
-            continue
         value = options.get(name)
         if name == "stop":
             if isinstance(value, str):
@@ -237,22 +234,6 @@ def _media_info(url: str, api_key: str, model: str) -> tuple[bool, str]:
     vision = bool(modalities.get("vision"))
     marker = props.get("media_marker") or DEFAULT_MEDIA_MARKER
     return vision, marker
-
-
-def _maybe_unload(connectivity: dict) -> None:
-    if connectivity.get("keep_alive") != 0:
-        return
-    try:
-        _http_json(
-            "POST",
-            connectivity["url"],
-            "/models/unload",
-            {"model": connectivity.get("model")},
-            api_key=_api_key(connectivity),
-            timeout=10,
-        )
-    except Exception:
-        pass
 
 
 def _think_payload(think: bool) -> dict:
@@ -410,10 +391,8 @@ class LlamaCppOptions:
                 "mirostat_eta": ("FLOAT", {"default": 0.1, "min": 0, "step": 0.1, "tooltip": "Mirostat's learning rate parameter influences how quickly the algorithm responds to feedback from the generated text."}),
                 "enable_mirostat_tau": ("BOOLEAN", {"default": False}),
                 "mirostat_tau": ("FLOAT", {"default": 5.0, "min": 0, "step": 0.1, "tooltip": "Mirostat's target entropy parameter controls the balance between coherence and diversity in the generated text."}),
-                "enable_num_ctx": ("BOOLEAN", {"default": False}),
-                "num_ctx": ("INT", {"default": 2048, "min": 0, "max": 2 ** 31, "step": 1, "tooltip": "Sets the size of the context window used to generate the next token. llama-server sets this at startup with -c; this value is not sent per request."}),
                 "enable_repeat_last_n": ("BOOLEAN", {"default": False}),
-                "repeat_last_n": ("INT", {"default": 64, "min": -1, "max": 64, "step": 1, "tooltip": "Sets how far back for the model to look back to prevent repetition. (0 = disabled, -1 = num_ctx)"}),
+                "repeat_last_n": ("INT", {"default": 64, "min": -1, "max": 64, "step": 1, "tooltip": "Sets how far back for the model to look back to prevent repetition. (0 = disabled, -1 = context size)"}),
                 "enable_repeat_penalty": ("BOOLEAN", {"default": False}),
                 "repeat_penalty": ("FLOAT", {"default": 1.1, "min": 0, "max": 2, "step": 0.05, "tooltip": "Sets how strongly to penalize repetitions. A higher value (e.g., 1.5) will penalize repetitions more strongly, while a lower value (e.g., 0.9) will be more lenient."}),
                 "enable_temperature": ("BOOLEAN", {"default": False}),
@@ -422,10 +401,8 @@ class LlamaCppOptions:
                 "seed": ("INT", {"default": seed, "min": 0, "max": 2 ** 31, "step": 1, "tooltip": "Sets the random number seed to use for generation. Setting this to a specific number will make the model generate the same text for the same prompt."}),
                 "enable_stop": ("BOOLEAN", {"default": False}),
                 "stop": ("STRING", {"default": "", "multiline": False, "tooltip": "When this pattern is encountered the LLM will stop generating text and return. Separate multiple stops with newlines."}),
-                "enable_tfs_z": ("BOOLEAN", {"default": False}),
-                "tfs_z": ("FLOAT", {"default": 1, "min": 1, "max": 1000, "step": 0.05, "tooltip": "Kept for UI parity with Ollama Options. Current llama.cpp does not accept tfs_z."}),
                 "enable_num_predict": ("BOOLEAN", {"default": False}),
-                "num_predict": ("INT", {"default": -1, "min": -2, "max": 2048, "step": 1, "tooltip": "Maximum number of tokens to predict when generating text. The default -1 means infinite generation."}),
+                "num_predict": ("INT", {"default": -1, "min": -1, "max": 2048, "step": 1, "tooltip": "Maximum number of tokens to predict when generating text. The default -1 means infinite generation."}),
                 "enable_top_k": ("BOOLEAN", {"default": False}),
                 "top_k": ("INT", {"default": 40, "min": 0, "max": 100, "step": 1, "tooltip": "Reduces the probability of generating nonsense. A higher value (e.g. 100) will give more diverse answers, while a lower value (e.g. 10) will be more conservative."}),
                 "enable_top_p": ("BOOLEAN", {"default": False}),
@@ -461,8 +438,6 @@ class LlamaCppConnectivity:
                     "tooltip": "The URL of llama-server. Default is a local instance on port 8080.",
                 }),
                 "model": ((), {"tooltip": "Select a model reported by llama-server. If this list is empty, start llama-server and press Reconnect."}),
-                "keep_alive": ("INT", {"default": 5, "min": -1, "max": 120, "step": 1, "tooltip": "Ollama-style keep-alive widget. llama-server ignores positive values and -1. 0 attempts POST /models/unload after inference (router mode)."}),
-                "keep_alive_unit": (["minutes", "hours"],),
             },
             "optional": {
                 "api_key": ("STRING", {
@@ -479,12 +454,10 @@ class LlamaCppConnectivity:
     CATEGORY = "LlamaCpp"
     DESCRIPTION = "Connection to llama-server. Use Reconnect to load the model list."
 
-    def llamacpp_connectivity(self, url, model, keep_alive, keep_alive_unit, api_key=""):
+    def llamacpp_connectivity(self, url, model, api_key=""):
         data = {
             "url": url,
             "model": model,
-            "keep_alive": keep_alive,
-            "keep_alive_unit": keep_alive_unit,
             "api_key": api_key,
         }
         return (data,)
@@ -641,7 +614,6 @@ format: {format}
             if debug_print:
                 print("saving context to node memory.")
 
-        _maybe_unload(connectivity)
         return result_text, thinking, new_context, meta
 
 
@@ -799,7 +771,6 @@ format: {format}
             "content": result_text or "",
         })
 
-        _maybe_unload(connectivity)
         return result_text, thinking, meta, history
 
 

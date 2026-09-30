@@ -27,15 +27,15 @@ llama-server -m /path/to/model.gguf --mmproj /path/to/mmproj.gguf --port 8080
 
 ### LlamaCpp Connectivity
 
-URL, model list (from `GET /v1/models`), keep-alive widgets, and optional API key for `--api-key`.
+URL, model list (from `GET /v1/models`), and optional API key for `--api-key`.
 
 Use **Reconnect** after the server starts or after changing models. Set `--alias` on llama-server if you want a short name in the dropdown.
 
 ### LlamaCpp Options
 
-Same enable/value sampling widgets as the Ollama Options node. Only enabled values are sent.
+Enable/value sampling widgets. Only enabled values are sent.
 
-`num_ctx` is a llama-server startup flag (`-c`), not a per-request option, so it is not sent. `tfs_z` was removed from current llama.cpp and is also not sent. `num_predict` maps to `n_predict` / `max_tokens`.
+`num_predict` maps to `n_predict` / `max_tokens`. Context size is llama-server's startup flag `-c`, not a per-request option.
 
 ### LlamaCpp Generate
 
@@ -60,9 +60,7 @@ Writes and reads Chat message lists (`LLAMACPP_HISTORY`) as JSON in `saved_histo
 | Widget / feature | llama-server behavior |
 |---|---|
 | Default URL | `http://127.0.0.1:8080` |
-| `keep_alive` | Not an Ollama-style TTL. `-1` and positive values are ignored. `0` tries `POST /models/unload` (router mode). |
-| `num_ctx` | Set with llama-server `-c`. The Options widget is kept for UI parity and is not sent. |
-| `tfs_z` | Not sent. |
+| `num_predict` | Sent as `n_predict` on Generate and `max_tokens` on Chat. `-1` means unlimited. |
 | Vision | Requires `--mmproj` (or auto mmproj with `-hf`). |
 | Thinking | Uses `reasoning_content` / `<think>` tags and `reasoning_effort` / `enable_thinking`. |
 
