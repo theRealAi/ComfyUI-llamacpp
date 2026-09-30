@@ -392,7 +392,7 @@ class LlamaCppOptions:
                 "enable_mirostat_tau": ("BOOLEAN", {"default": False}),
                 "mirostat_tau": ("FLOAT", {"default": 5.0, "min": 0, "step": 0.1, "tooltip": "Mirostat's target entropy parameter controls the balance between coherence and diversity in the generated text."}),
                 "enable_repeat_last_n": ("BOOLEAN", {"default": False}),
-                "repeat_last_n": ("INT", {"default": 64, "min": -1, "max": 64, "step": 1, "tooltip": "Sets how far back for the model to look back to prevent repetition. (0 = disabled, -1 = context size)"}),
+                "repeat_last_n": ("INT", {"default": 64, "min": -1, "max": 2 ** 31, "step": 1, "tooltip": "Sets how far back for the model to look back to prevent repetition. (0 = disabled, -1 = context size)"}),
                 "enable_repeat_penalty": ("BOOLEAN", {"default": False}),
                 "repeat_penalty": ("FLOAT", {"default": 1.1, "min": 0, "max": 2, "step": 0.05, "tooltip": "Sets how strongly to penalize repetitions. A higher value (e.g., 1.5) will penalize repetitions more strongly, while a lower value (e.g., 0.9) will be more lenient."}),
                 "enable_temperature": ("BOOLEAN", {"default": False}),
