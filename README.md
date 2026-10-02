@@ -4,7 +4,7 @@ Custom ComfyUI nodes for [llama-server](https://github.com/ggml-org/llama.cpp/tr
 
 These nodes talk to a running llama-server over HTTP. They do not load GGUF files inside ComfyUI.
 
-![LlamaCpp node pack](assets/nodepack.png)
+![LlamaCpp node pack](assets/nodepack_update.png)
 
 ## Install
 
